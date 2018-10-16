@@ -1,31 +1,95 @@
-﻿@{
-    ViewBag.Title = "Home Page";
-}
+﻿
+    <!DOCTYPE html>
+    <html >
+    <head>
+        <title>Base64 Image Loading</title>
+        <script src="~/Scripts/jquery-3.3.1.js"></script>
+        <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+        <link href="~/Content/Site.css" rel="stylesheet" />
+        <script language="javascript" type="text/javascript">
+    var imageUrl = " @Url.Action("GetBase64Image", "Home")";
+    var imgs = null;
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+    $(document).ready(function () {
+        //if ($.browser.msie) {
+            //var browserMsg
+            //     = "Your browser does not support Base64 image"
+            //$("#divBrowserInfo").html(browserMsg);
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+            //$("#btnClearImage").attr("disabled", true);
+            //$("#btnLoadImage").attr("disabled", true);
+        //}
+
+        var displayImage = function (base64Data) {
+            var imag = "<img "
+                     + "src='" + "data:image/jpg;base64,"
+                     + base64Data + "'/>";
+
+            $("#divImageHolder").html(imag)
+            //alert(imag);
+        };
+
+        $("#btnLoadImage").click(function () {
+          //  alert("OK");
+            if (imgs != null) {
+                displayImage(imgs.base64imgage);
+                return;
+               
+            }
+
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: imageUrl,
+                contentType: 'application/json',
+                dataType: "json",
+                success: function (data) {
+                    //alert(data);                  
+                    imgs = data;
+                   // displayImage(encode(data));
+                    displayImage(imgs.base64imgage);
+                   // alert(imgs.base64imgage);
+                },
+                error: function (xhr) {
+                    alert("Error occurred while loading the image. "
+                        + xhr.responseText);
+                }
+            });
+        });
+
+        //function encode(data) {
+        //    var str = String.fromCharCode.apply(null, data);
+        //    return "data:image/png;base64," + btoa(str).replace(/.{76}(?=.)/g, '$&\n');
+        //}
+
+        $("#btnClearImage").click(function () {
+            $("#divImageHolder").html("");
+        });
+    });
+        </script>
+    </head>
+
+    <body>
+        @using (Html.BeginForm("SaveImage", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <span>Select File:</span>
+            <input type="file" name="file" />
+            <br />
+            <button type="submit">Upload</button>
+        }
+        <br />
+        <div id="divBrowserInfo"></div>
+        <br />
+        <div id="divImageHolder"></div>
+        <div>
+            <button id="btnClearImage">
+                Clear Image
+            </button>
+            <button id="btnLoadImage">
+                Load Base64 Image
+            </button>
+        </div>
+
+    </body>
+</html>
+
